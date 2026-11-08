@@ -46,6 +46,7 @@ export default defineType({
         ],
         layout: "radio",
       },
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "city",
@@ -88,6 +89,7 @@ export default defineType({
       title: "حساب مفعل",
       type: "boolean",
       initialValue: false,
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "service",

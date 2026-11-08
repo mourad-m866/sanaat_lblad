@@ -182,7 +182,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const user = await client.create({
+    const userDocument = {
       _type: "user",
       name,
       email: email.toLowerCase(),
@@ -197,12 +197,35 @@ export async function POST(request: Request) {
         ? { service: { _type: "reference" as const, _ref: serviceId } }
         : {}),
       isVerified: false,
-    });
+    } as const;
+    const user = await client.create(userDocument, { returnDocuments: true });
+
+    if (
+      user._type !== "user" ||
+      user.name !== name ||
+      user.role !== role ||
+      user.isVerified !== false
+    ) {
+      console.error("Sanity returned an incomplete user registration document.", {
+        id: user._id,
+        type: user._type,
+        hasName: typeof user.name === "string" && user.name.length > 0,
+        role: user.role,
+        isVerified: user.isVerified,
+      });
+      return Response.json(
+        { error: "تعذر التحقق من حفظ بيانات المستخدم. يرجى المحاولة لاحقاً." },
+        { status: 502 },
+      );
+    }
 
     return Response.json(
       {
         success: true,
         id: user._id,
+        documentType: user._type,
+        role: user.role,
+        isVerified: user.isVerified,
         message: "تم استلام طلبك، وهو قيد المراجعة.",
       },
       { status: 201 },

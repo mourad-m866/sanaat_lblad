@@ -76,9 +76,6 @@ async function getHomepageData() {
     city: craftsman.city,
     bio: craftsman.bio,
     rating: craftsman.rating,
-    phone: craftsman.phone,
-    whatsapp: craftsman.whatsapp,
-    whatsappMessage: craftsman.whatsappMessage,
     services: [
       ...(craftsman.service ? [craftsman.service] : []),
       ...(craftsman.services?.filter(
@@ -125,9 +122,6 @@ type CraftsmanResult = {
   city: string | null;
   bio: string | null;
   rating: number | null;
-  phone: string | null;
-  whatsapp: string | null;
-  whatsappMessage: string | null;
   service: { _id: string; title: string; slug: string | null } | null;
   services: ({ _id: string; title: string; slug: string | null } | null)[] | null;
   portfolio: SanityImage | null;

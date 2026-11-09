@@ -28,9 +28,6 @@ export const VERIFIED_CRAFTSMEN_QUERY = defineQuery(`
       city,
       bio,
       rating,
-      phone,
-      whatsapp,
-      whatsappMessage,
       "service": service->{ _id, title, "slug": slug.current },
       "services": services[]->{ _id, title, "slug": slug.current },
       "portfolio": portfolio[defined(asset._ref)][0] { asset, hotspot, crop }

@@ -815,18 +815,6 @@ select:focus-visible {
   background: #f2f4ef;
 }
 
-.whatsapp-button {
-  margin-bottom: 8px;
-  border-color: #b7e5c4;
-  background: #f0fbf3;
-  color: #16803c;
-}
-
-.whatsapp-button:hover {
-  border-color: #16803c;
-  background: #e3f7e9;
-}
-
 .order-modal-backdrop {
   position: fixed;
   z-index: 20;
@@ -932,11 +920,6 @@ select:focus-visible {
   padding: 0 24px;
 }
 
-.whatsapp-button svg {
-  width: 18px;
-  height: 18px;
-}
-
 .empty-state-dark,
 .content-notice-dark {
   border-color: #ffffff32;
@@ -1004,6 +987,103 @@ select:focus-visible {
   background: #fffefa;
 }
 
+.step-card-service {
+  position: relative;
+}
+
+.step-card-service:focus-within,
+.step-card-service.is-open {
+  z-index: 2;
+}
+
+.step-card-content {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: right;
+}
+
+.step-card-title,
+.step-card-description {
+  display: block;
+}
+
+.step-card-title {
+  margin: 17px 0 5px;
+  color: #30382f;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.step-card-description {
+  color: #7a7d73;
+  font-size: 10px;
+  line-height: 1.8;
+}
+
+.step-service-menu {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  display: none;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid #eae7df;
+  border-radius: 9px;
+  background: #fffefa;
+  box-shadow: 0 12px 28px rgb(28 48 40 / 14%);
+}
+
+.step-card-service.is-open .step-service-menu {
+  display: grid;
+}
+
+.step-service-menu button {
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: 11px;
+  text-align: right;
+}
+
+.step-service-menu button:hover,
+.step-service-menu button[aria-pressed="true"] {
+  background: #edf0e8;
+  color: var(--forest);
+}
+
+.step-service-menu p {
+  margin: 0;
+  padding: 9px 10px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.step-card-action {
+  display: block;
+  width: 100%;
+  color: inherit;
+  cursor: pointer;
+  text-align: right;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.step-card-action:hover {
+  transform: translateY(-2px);
+  border-color: #c9c6bb;
+  background: #fff;
+}
+
 .step-topline {
   display: flex;
   align-items: center;
@@ -1027,20 +1107,6 @@ select:focus-visible {
   color: var(--forest);
   font-size: 19px;
   font-weight: 700;
-}
-
-.step-card h3 {
-  margin: 17px 0 5px;
-  color: #30382f;
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.step-card p {
-  margin: 0;
-  color: #7a7d73;
-  font-size: 10px;
-  line-height: 1.8;
 }
 
 .how-cta {
@@ -1433,6 +1499,16 @@ select:focus-visible {
     padding: 12px;
   }
 
+  .step-card-service {
+    display: block;
+  }
+
+  .step-card-content {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    column-gap: 13px;
+  }
+
   .step-topline {
     grid-row: span 2;
     flex-direction: column;
@@ -1440,12 +1516,12 @@ select:focus-visible {
     gap: 10px;
   }
 
-  .step-card h3 {
+  .step-card-title {
     margin: 2px 0 3px;
     font-size: 12px;
   }
 
-  .step-card p {
+  .step-card-description {
     font-size: 10px;
   }
 

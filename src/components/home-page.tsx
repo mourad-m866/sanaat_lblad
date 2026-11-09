@@ -19,9 +19,6 @@ export type CraftsmanCard = {
   city: string | null;
   bio: string | null;
   rating: number | null;
-  phone: string | null;
-  whatsapp: string | null;
-  whatsappMessage: string | null;
   services: { _id: string; title: string; slug: string | null }[];
   avatarUrl: string | null;
 };
@@ -127,41 +124,6 @@ function getUsersLabel(count: number) {
   }
 }
 
-function WhatsAppIcon() {
-  return (
-    <svg aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M12.04 2a9.87 9.87 0 0 0-8.47 14.94L2 22l5.2-1.36A9.93 9.93 0 1 0 12.04 2Zm0 18.06a8.1 8.1 0 0 1-4.13-1.13l-.3-.18-3.08.8.82-3-.2-.32a8.12 8.12 0 1 1 6.89 3.83Zm4.46-6.08c-.24-.12-1.43-.71-1.65-.79-.22-.08-.38-.12-.54.12-.16.24-.62.79-.76.95-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.95-1.21-.72-.64-1.2-1.43-1.34-1.67-.14-.24-.02-.37.1-.49.1-.1.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.31-.74-1.8-.2-.47-.4-.4-.54-.41h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2 0 1.18.86 2.32.98 2.48.12.16 1.69 2.58 4.1 3.62.57.25 1.02.4 1.37.5.58.18 1.1.15 1.51.1.46-.07 1.43-.59 1.63-1.15.2-.57.2-1.05.14-1.15-.06-.1-.22-.16-.46-.28Z" />
-    </svg>
-  );
-}
-
-function WhatsAppContact({
-  number,
-  message,
-}: {
-  number: string | null;
-  message: string | null;
-}) {
-  const internationalNumber = (number ?? "").replace(/\D/g, "");
-  if (internationalNumber.length < 8 || internationalNumber.length > 15) {
-    return null;
-  }
-
-  const text = message || "السلام عليكم، أريد التواصل معك بخصوص الخدمة.";
-
-  return (
-    <a
-      className="contact-button whatsapp-button"
-      href={`https://wa.me/${internationalNumber}?text=${encodeURIComponent(text)}`}
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      <WhatsAppIcon />
-      تواصل معي عبر الواتساب
-    </a>
-  );
-}
-
 export default function HomePage({
   services,
   craftsmen,
@@ -172,6 +134,7 @@ export default function HomePage({
   const [cityInput, setCityInput] = useState("");
   const [activeServiceId, setActiveServiceId] = useState("");
   const [activeCity, setActiveCity] = useState("");
+  const [isServiceMenuOpen, setIsServiceMenuOpen] = useState(false);
   const [selectedCraftsman, setSelectedCraftsman] = useState<CraftsmanCard | null>(null);
 
   const cities = useMemo(
@@ -207,6 +170,19 @@ export default function HomePage({
     setServiceId(id);
     setActiveServiceId(id);
     document.getElementById("search")?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function chooseStepService(id: string) {
+    setServiceId(id);
+    setActiveServiceId(id);
+    setCityInput("");
+    setActiveCity("");
+    setIsServiceMenuOpen(false);
+    document.getElementById("craftsmen")?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function scrollToCraftsmen() {
+    document.getElementById("craftsmen")?.scrollIntoView({ behavior: "smooth" });
   }
 
   const activeService = services.find((service) => service._id === activeServiceId);
@@ -418,10 +394,6 @@ export default function HomePage({
                     <span className="verified-badge"><span>✓</span> موثّق</span>
                   </div>
                   <div className="craftsman-details">
-                    <WhatsAppContact
-                      message={craftsman.whatsappMessage}
-                      number={craftsman.whatsapp}
-                    />
                     <div className="craftsman-title-row">
                       <div>
                         <h3>{craftsman.name}</h3>
@@ -465,16 +437,85 @@ export default function HomePage({
           <p>لقَى الشخص المناسب لخدمتك، بكل سهولة وبكل ثقة.</p>
         </div>
         <div className="steps-grid">
-          {steps.map((step) => (
-            <article className="step-card" key={step.number}>
-              <div className="step-topline">
-                <span className="step-number">{step.number}</span>
-                <span className="step-icon" aria-hidden="true">{step.icon}</span>
-              </div>
-              <h3>{step.title}</h3>
-              <p>{step.description}</p>
-            </article>
-          ))}
+          {steps.map((step, index) => {
+            const content = (
+              <>
+                <span className="step-topline">
+                  <span className="step-number">{step.number}</span>
+                  <span className="step-icon" aria-hidden="true">{step.icon}</span>
+                </span>
+                <span className="step-card-title">{step.title}</span>
+                <span className="step-card-description">{step.description}</span>
+              </>
+            );
+
+            if (index === 0) {
+              return (
+                <article
+                  className={`step-card step-card-service${isServiceMenuOpen ? " is-open" : ""}`}
+                  key={step.number}
+                  onBlurCapture={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+                      setIsServiceMenuOpen(false);
+                    }
+                  }}
+                  onFocusCapture={() => setIsServiceMenuOpen(true)}
+                  onMouseEnter={() => setIsServiceMenuOpen(true)}
+                  onMouseLeave={() => setIsServiceMenuOpen(false)}
+                >
+                  <button
+                    aria-controls="step-service-menu"
+                    aria-expanded={isServiceMenuOpen}
+                    className="step-card-content"
+                    onClick={() => setIsServiceMenuOpen(true)}
+                    type="button"
+                  >
+                    {content}
+                  </button>
+                  <div
+                    className="step-service-menu"
+                    id="step-service-menu"
+                    role="group"
+                    aria-label="اختر نوع الخدمة"
+                  >
+                    {services.length ? (
+                      services.map((service) => (
+                        <button
+                          aria-pressed={activeServiceId === service._id}
+                          key={service._id}
+                          onClick={() => chooseStepService(service._id)}
+                          type="button"
+                        >
+                          {service.title}
+                        </button>
+                      ))
+                    ) : (
+                      <p>لا توجد خدمات متاحة حالياً.</p>
+                    )}
+                  </div>
+                </article>
+              );
+            }
+
+            if (index === 1) {
+              return (
+                <button
+                  className="step-card step-card-action"
+                  key={step.number}
+                  onClick={scrollToCraftsmen}
+                  type="button"
+                >
+                  {content}
+                </button>
+              );
+            }
+
+            return (
+              <article className="step-card" key={step.number}>
+                {content}
+              </article>
+            );
+          })}
         </div>
         <a className="button button-dark how-cta" href="#search">
           يلا نبدأو <ArrowIcon />

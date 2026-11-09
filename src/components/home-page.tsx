@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState, type FormEvent } from "react";
+import OrderModal from "@/components/OrderModal";
 
 export type ServiceCard = {
   _id: string;
@@ -171,6 +172,7 @@ export default function HomePage({
   const [cityInput, setCityInput] = useState("");
   const [activeServiceId, setActiveServiceId] = useState("");
   const [activeCity, setActiveCity] = useState("");
+  const [selectedCraftsman, setSelectedCraftsman] = useState<CraftsmanCard | null>(null);
 
   const cities = useMemo(
     () => [
@@ -435,11 +437,13 @@ export default function HomePage({
                         <span key={service._id}>{service.title}</span>
                       ))}
                     </div>
-                    {craftsman.phone && (
-                      <a className="contact-button" href={`tel:${craftsman.phone.replace(/[^\d+]/g, "")}`}>
-                        تواصل مع الحرفي <ArrowIcon />
-                      </a>
-                    )}
+                    <button
+                      className="contact-button order-trigger"
+                      onClick={() => setSelectedCraftsman(craftsman)}
+                      type="button"
+                    >
+                      اطلب خدمة الآن <ArrowIcon />
+                    </button>
                   </div>
                 </article>
               ))}
@@ -499,6 +503,13 @@ export default function HomePage({
           <span>صُنع بكل محبة في المغرب <span aria-hidden="true">♥</span></span>
         </div>
       </footer>
+      {selectedCraftsman && (
+        <OrderModal
+          craftsmanId={selectedCraftsman._id}
+          craftsmanName={selectedCraftsman.name}
+          onClose={() => setSelectedCraftsman(null)}
+        />
+      )}
     </main>
   );
 }

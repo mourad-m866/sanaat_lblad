@@ -12,6 +12,18 @@ export default defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "clientName",
+      title: "اسم العميل",
+      type: "string",
+      validation: (rule) => rule.required().max(120),
+    }),
+    defineField({
+      name: "clientPhone",
+      title: "رقم هاتف العميل",
+      type: "string",
+      validation: (rule) => rule.required().max(40),
+    }),
+    defineField({
       name: "client",
       title: "العميل",
       type: "reference",
@@ -26,7 +38,6 @@ export default defineType({
       title: "الخدمة",
       type: "reference",
       to: [{ type: "service" }],
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "assignedCraftsman",
@@ -44,6 +55,7 @@ export default defineType({
       type: "string",
       options: {
         list: [
+          { title: "قيد الانتظار", value: "pending" },
           { title: "جديد", value: "new" },
           { title: "قيد التنفيذ", value: "in_progress" },
           { title: "مكتمل", value: "completed" },
@@ -51,7 +63,7 @@ export default defineType({
         ],
         layout: "radio",
       },
-      initialValue: "new",
+      initialValue: "pending",
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -62,6 +74,6 @@ export default defineType({
     }),
   ],
   preview: {
-    select: { title: "orderNumber", subtitle: "status" },
+    select: { title: "clientName", subtitle: "status" },
   },
 });

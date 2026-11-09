@@ -8,6 +8,11 @@ type OrderModalProps = {
   onClose: () => void;
 };
 
+type ServiceOption = {
+  _id: string;
+  title: string;
+};
+
 export default function OrderModal({
   craftsmanId,
   craftsmanName,
@@ -16,9 +21,72 @@ export default function OrderModal({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [details, setDetails] = useState("");
+  const [serviceType, setServiceType] = useState("");
+  const [services, setServices] = useState<ServiceOption[]>([]);
+  const [isLoadingServices, setIsLoadingServices] = useState(true);
+  const [serviceLoadError, setServiceLoadError] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadServices() {
+      try {
+        const response = await fetch("/api/orders");
+        const result: unknown = await response.json();
+
+        if (
+          !response.ok ||
+          typeof result !== "object" ||
+          result === null ||
+          !("services" in result) ||
+          !Array.isArray(result.services) ||
+          !result.services.every(
+            (service) =>
+              typeof service === "object" &&
+              service !== null &&
+              "_id" in service &&
+              typeof service._id === "string" &&
+              "title" in service &&
+              typeof service.title === "string",
+          )
+        ) {
+          throw new Error(
+            typeof result === "object" &&
+              result !== null &&
+              "error" in result &&
+              typeof result.error === "string"
+              ? result.error
+              : "تعذر تحميل قائمة الخدمات.",
+          );
+        }
+
+        if (isActive) {
+          setServices(result.services);
+          setServiceLoadError("");
+        }
+      } catch (loadError) {
+        if (isActive) {
+          setServiceLoadError(
+            loadError instanceof Error
+              ? loadError.message
+              : "تعذر تحميل قائمة الخدمات.",
+          );
+        }
+      } finally {
+        if (isActive) {
+          setIsLoadingServices(false);
+        }
+      }
+    }
+
+    void loadServices();
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -40,7 +108,7 @@ export default function OrderModal({
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ craftsmanId, name, phone, details }),
+        body: JSON.stringify({ craftsmanId, name, phone, details, serviceType }),
       });
       const result: unknown = await response.json();
 
@@ -130,6 +198,33 @@ export default function OrderModal({
                   value={phone}
                 />
               </label>
+              <label>
+                <span>نوع الخدمة</span>
+                <select
+                  disabled={isLoadingServices || services.length === 0}
+                  onChange={(event) => setServiceType(event.target.value)}
+                  required
+                  value={serviceType}
+                >
+                  <option value="">
+                    {isLoadingServices
+                      ? "جارٍ تحميل الخدمات..."
+                      : services.length
+                        ? "اختر نوع الخدمة"
+                        : "لا توجد خدمات متاحة"}
+                  </option>
+                  {services.map((service) => (
+                    <option key={service._id} value={service._id}>
+                      {service.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {serviceLoadError && (
+                <p className="order-modal-error" role="alert">
+                  {serviceLoadError}
+                </p>
+              )}
               <label>
                 <span>تفاصيل الخدمة المطلوبة</span>
                 <textarea

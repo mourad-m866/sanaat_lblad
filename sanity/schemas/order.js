@@ -38,6 +38,7 @@ export default defineType({
       title: "الخدمة",
       type: "reference",
       to: [{ type: "service" }],
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "assignedCraftsman",
@@ -48,6 +49,14 @@ export default defineType({
         filter: "role == $role",
         filterParams: { role: "craftsman" },
       },
+    }),
+    defineField({
+      name: "isApproved",
+      title: "اعتماد الطلب للسماح بإرساله عبر واتساب",
+      description: "بعد التفعيل والحفظ، استخدم إجراء إرسال واتساب من قائمة إجراءات المستند.",
+      type: "boolean",
+      initialValue: false,
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "status",

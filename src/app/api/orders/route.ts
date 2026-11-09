@@ -6,6 +6,7 @@ type OrderPayload = {
   name?: unknown;
   phone?: unknown;
   details?: unknown;
+  serviceType?: unknown;
 };
 
 const MAX_LENGTHS = {
@@ -13,6 +14,7 @@ const MAX_LENGTHS = {
   name: 120,
   phone: 40,
   details: 2000,
+  serviceType: 128,
 } as const;
 
 function isRecord(value: unknown): value is OrderPayload {
@@ -26,6 +28,48 @@ function readText(value: unknown, maxLength: number): string | null {
 
   const text = value.trim();
   return text.length > 0 && text.length <= maxLength ? text : null;
+}
+
+function getSanityReadClient() {
+  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
+
+  if (!projectId || !dataset) {
+    return null;
+  }
+
+  return createClient({
+    projectId,
+    dataset,
+    apiVersion: "2026-11-06",
+    useCdn: false,
+  });
+}
+
+export async function GET() {
+  const client = getSanityReadClient();
+
+  if (!client) {
+    console.error("Service list is unavailable: Sanity read configuration is missing.");
+    return Response.json(
+      { error: "تعذر تحميل قائمة الخدمات حالياً." },
+      { status: 503 },
+    );
+  }
+
+  try {
+    const services = await client.fetch<{ _id: string; title: string }[]>(
+      '*[_type == "service"] | order(title asc) { _id, title }',
+    );
+
+    return Response.json({ services });
+  } catch (error) {
+    console.error("Failed to load the Sanity service list.", error);
+    return Response.json(
+      { error: "تعذر تحميل قائمة الخدمات حالياً." },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(request: Request) {
@@ -48,8 +92,9 @@ export async function POST(request: Request) {
   const name = readText(payload.name, MAX_LENGTHS.name);
   const phone = readText(payload.phone, MAX_LENGTHS.phone);
   const details = readText(payload.details, MAX_LENGTHS.details);
+  const serviceType = readText(payload.serviceType, MAX_LENGTHS.serviceType);
 
-  if (!craftsmanId || !name || !phone || !details) {
+  if (!craftsmanId || !name || !phone || !details || !serviceType) {
     return Response.json(
       { error: "يرجى ملء جميع الحقول بالمعلومات المطلوبة." },
       { status: 400 },
@@ -91,6 +136,15 @@ export async function POST(request: Request) {
       return Response.json({ error: "الحرفي المحدد غير متاح لاستقبال الطلبات." }, { status: 404 });
     }
 
+    const serviceId = await client.fetch<string | null>(
+      '*[_type == "service" && _id == $serviceType][0]._id',
+      { serviceType },
+    );
+
+    if (!serviceId) {
+      return Response.json({ error: "نوع الخدمة المحدد غير موجود." }, { status: 400 });
+    }
+
     const order = await client.create(
       {
         _type: "order",
@@ -98,8 +152,10 @@ export async function POST(request: Request) {
         clientName: name,
         clientPhone: phone,
         problemDescription: details,
+        serviceType: { _type: "reference", _ref: serviceId },
         assignedCraftsman: { _type: "reference", _ref: craftsman._id },
         status: "pending",
+        isApproved: false,
       },
       { returnDocuments: true },
     );

@@ -1,5 +1,6 @@
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
+import { SendOrderWhatsAppAction } from "./sanity/actions/send-order-whatsapp";
 import order from "./sanity/schemas/order";
 import service from "./sanity/schemas/service";
 import user from "./sanity/schemas/user";
@@ -19,6 +20,12 @@ export default defineConfig({
   projectId,
   dataset,
   basePath: "/studio",
+  document: {
+    actions: (previousActions, context) =>
+      context.schemaType === "order"
+        ? [...previousActions, SendOrderWhatsAppAction]
+        : previousActions,
+  },
   plugins: [
     structureTool({
       structure: (S) =>

@@ -884,6 +884,7 @@ select:focus-visible {
 }
 
 .order-modal-form input,
+.order-modal-form select,
 .order-modal-form textarea {
   width: 100%;
   border: 1px solid var(--line);

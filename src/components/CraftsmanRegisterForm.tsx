@@ -118,7 +118,7 @@ export default function CraftsmanRegisterForm({
       <form className="space-y-5" onSubmit={handleSubmit}>
         <div className="grid gap-5 sm:grid-cols-2">
           <label className="block text-sm font-bold text-[#343a33]" htmlFor="register-name">
-            الاسم الكامل <span className="text-[#c86d4d]">*</span>
+            الاسم الكامل <span aria-hidden="true" className="text-red-600">*</span>
             <input
               autoComplete="name"
               className={inputClassName}
@@ -132,7 +132,7 @@ export default function CraftsmanRegisterForm({
           </label>
 
           <label className="block text-sm font-bold text-[#343a33]" htmlFor="register-phone">
-            رقم الهاتف <span className="text-[#c86d4d]">*</span>
+            رقم الهاتف <span aria-hidden="true" className="text-red-600">*</span>
             <input
               autoComplete="tel"
               className={inputClassName}
@@ -147,13 +147,14 @@ export default function CraftsmanRegisterForm({
           </label>
 
           <label className="block text-sm font-bold text-[#343a33]" htmlFor="register-service">
-            اختر حرفتك أو خدمتك الأساسية
+            الحرفة أو الخدمة الأساسية <span aria-hidden="true" className="text-red-600">*</span>
             <select
               className={`${inputClassName} cursor-pointer appearance-none`}
               defaultValue=""
               disabled={isSubmitting}
               id="register-service"
               name="service"
+              required
             >
               <option value="">اختر الخدمة أو الحرفة</option>
               {services.map((service) => (
@@ -170,7 +171,7 @@ export default function CraftsmanRegisterForm({
           </label>
 
           <label className="block text-sm font-bold text-[#343a33]" htmlFor="register-whatsapp">
-            رقم واتساب مع رمز الدولة
+            رقم واتساب مع رمز الدولة <span aria-hidden="true" className="text-red-600">*</span>
             <input
               autoComplete="tel"
               className={inputClassName}
@@ -179,6 +180,7 @@ export default function CraftsmanRegisterForm({
               maxLength={20}
               name="whatsapp"
               placeholder="+212600000000"
+              required
               type="tel"
             />
           </label>
@@ -198,7 +200,7 @@ export default function CraftsmanRegisterForm({
           </label>
 
           <label className="block text-sm font-bold text-[#343a33]" htmlFor="register-city">
-            المدينة
+            المدينة <span aria-hidden="true" className="text-red-600">*</span>
             <select
               autoComplete="address-level2"
               className={`${inputClassName} cursor-pointer appearance-none`}
@@ -210,6 +212,7 @@ export default function CraftsmanRegisterForm({
                 setSelectedCity(isMoroccanCity(city) ? city : "");
                 setSelectedDistrict("");
               }}
+              required
               value={selectedCity}
             >
               <option value="">اختر المدينة</option>
@@ -222,7 +225,7 @@ export default function CraftsmanRegisterForm({
           </label>
 
           <label className="block text-sm font-bold text-[#343a33]" htmlFor="register-district">
-            المقاطعة أو الحي
+            المقاطعة أو الحي <span aria-hidden="true" className="text-red-600">*</span>
             <select
               autoComplete="address-level3"
               className={`${inputClassName} cursor-pointer appearance-none`}
@@ -230,7 +233,7 @@ export default function CraftsmanRegisterForm({
               id="register-district"
               name="district"
               onChange={(event) => setSelectedDistrict(event.target.value)}
-              required={Boolean(selectedCity)}
+              required
               value={selectedDistrict}
             >
               <option value="">
@@ -247,7 +250,7 @@ export default function CraftsmanRegisterForm({
         </div>
 
         <label className="block text-sm font-bold text-[#343a33]" htmlFor="register-bio">
-          نبذة عن الخبرة أو الحرفة
+          نبذة عن الخبرة أو الحرفة <span aria-hidden="true" className="text-red-600">*</span>
           <textarea
             className={`${inputClassName} min-h-32 resize-y`}
             disabled={isSubmitting}
@@ -255,6 +258,7 @@ export default function CraftsmanRegisterForm({
             maxLength={2000}
             name="bio"
             placeholder="اكتب نبذة قصيرة عن خبرتك والخدمات التي تقدمها..."
+            required
             rows={4}
           />
         </label>

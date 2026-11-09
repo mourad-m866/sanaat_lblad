@@ -74,8 +74,27 @@ export async function POST(request: Request) {
   const district = readOptionalText(payload.district, "district");
   const bio = readOptionalText(payload.bio, "bio");
 
+  let role: RegistrationRole;
+  if (payload.role === undefined || payload.role === "craftsman") {
+    role = "craftsman";
+  } else if (payload.role === "client") {
+    role = "client";
+  } else {
+    return Response.json({ error: "نوع الحساب غير صالح." }, { status: 400 });
+  }
+
   if (name === null || !name) {
     return Response.json({ error: "الاسم مطلوب ويجب ألا يتجاوز 120 حرفاً." }, { status: 400 });
+  }
+
+  if (
+    role === "craftsman" &&
+    (!serviceId || !phone || !whatsapp || !city || !district || !bio)
+  ) {
+    return Response.json(
+      { error: "جميع الحقول مطلوبة للحرفي باستثناء البريد الإلكتروني ورسالة واتساب التلقائية." },
+      { status: 400 },
+    );
   }
 
   if (serviceId === null) {
@@ -132,15 +151,6 @@ export async function POST(request: Request) {
     );
   }
 
-  let role: RegistrationRole;
-  if (payload.role === undefined || payload.role === "craftsman") {
-    role = "craftsman";
-  } else if (payload.role === "client") {
-    role = "client";
-  } else {
-    return Response.json({ error: "نوع الحساب غير صالح." }, { status: 400 });
-  }
-
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
   const token = process.env.SANITY_API_WRITE_TOKEN;
@@ -185,7 +195,7 @@ export async function POST(request: Request) {
     const userDocument = {
       _type: "user",
       name,
-      email: email.toLowerCase(),
+      ...(email ? { email: email.toLowerCase() } : {}),
       phone,
       whatsapp,
       whatsappMessage,

@@ -21,15 +21,23 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 ## Sanity
 
 Copy `.env.example` to `.env.local` and replace the placeholder values with your
-Sanity project ID and dataset:
+Sanity project ID and dataset. Registration and order submissions also require a
+Sanity API token with permission to create documents:
 
 ```env
 NEXT_PUBLIC_SANITY_PROJECT_ID=your-sanity-project-id
 NEXT_PUBLIC_SANITY_DATASET=production
+SANITY_API_WRITE_TOKEN=your-server-side-sanity-write-token
 ```
 
 The configured `sanityClient` is exported from `sanity.client.ts`. Restart the
 development server after changing environment variables.
+
+For the deployed site, add `SANITY_API_WRITE_TOKEN` to the Vercel project's
+Environment Variables for the relevant environment, then redeploy. Keep it
+server-side: do not prefix it with `NEXT_PUBLIC_` or commit its value. If
+submissions still fail, check the Vercel Function logs for the Sanity API error
+and confirm the token has write access to the configured project and dataset.
 
 The Sanity Studio schemas are in `sanity/schemas/`. Run `npm run studio` to
 open the Studio at `http://localhost:3333/studio`.

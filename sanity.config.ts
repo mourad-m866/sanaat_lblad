@@ -29,7 +29,21 @@ export default defineConfig({
   plugins: [
     structureTool({
       structure: (S) =>
-        S.list().title("المحتوى").items(S.documentTypeListItems()),
+        S.list()
+          .title("المحتوى")
+          .items([
+            S.listItem()
+              .id("pendingCraftsmen")
+              .title("طلبات الحرفيين قيد المراجعة")
+              .child(
+                S.documentTypeList("user")
+                  .title("طلبات الحرفيين قيد المراجعة")
+                  .filter('_type == "user" && role == "craftsman" && isVerified == false')
+                  .defaultOrdering([{ field: "_createdAt", direction: "desc" }]),
+              ),
+            S.divider(),
+            ...S.documentTypeListItems(),
+          ]),
     }),
   ],
   schema: { types: [user, service, order] },
